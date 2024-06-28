@@ -7,11 +7,15 @@ from alembic import context
 from fast_zero.settings import Settings
 from fast_zero.models import table_registry
 
+# this is the Alembic Config object, which provides
+# access to the values within the .ini file in use.
 config = context.config
 config.set_main_option(
     'sqlalchemy.url', Settings().DATABASE_URL
 )
 
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
