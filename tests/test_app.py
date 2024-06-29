@@ -7,8 +7,8 @@ def test_create_user(client):
     response = client.post(
         '/users/',
         json={
-            'username': 'name',
-            'email': 'email@test.com',
+            'username': 'test',
+            'email': 'test@email.com',
             'password': 'password',
         },
     )
@@ -18,9 +18,39 @@ def test_create_user(client):
     # Validar UserPublic
     assert response.json() == {
         'id': 1,
-        'username': 'name',
-        'email': 'email@test.com',
+        'username': 'test',
+        'email': 'test@email.com',
     }
+
+
+def test_create_user_with_username_already_used(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'test',
+            'email': 'test2@email.com',
+            'password': 'password',
+        }
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    assert response.json() == {'detail': 'Username already exists'}
+
+
+def test_create_user_with_email_already_used(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'test2',
+            'email': 'test@email.com',
+            'password': 'password',
+        }
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+
+    assert response.json() == {'detail': 'Email already exists'}
 
 
 def test_read_users(client):
@@ -64,8 +94,8 @@ def test_update_user(client, user):
     response = client.put(
         '/users/1',
         json={
-            'username': 'name2',
-            'email': 'email2@test.com',
+            'username': 'test2',
+            'email': 'test2@email.com',
             'password': 'password2',
         },
     )
@@ -74,8 +104,8 @@ def test_update_user(client, user):
 
     assert response.json() == {
         'id': 1,
-        'username': 'name2',
-        'email': 'email2@test.com',
+        'username': 'test2',
+        'email': 'test2@email.com',
     }
 
 
@@ -83,8 +113,8 @@ def test_update_user_not_found(client):
     response = client.put(
         '/users/0',
         json={
-            'username': 'name2',
-            'email': 'email2@test.com',
+            'username': 'test2',
+            'email': 'test2@email.com',
             'password': 'password2',
         },
     )
