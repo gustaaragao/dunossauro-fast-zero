@@ -51,8 +51,7 @@ def create_access_token(data_payload: dict):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
-# async -> permite operações de IO no DB sem bloqueios
-async def get_current_user(
+def get_current_user(
     session: Session = Depends(get_session),
     token: str = Depends(oauth2_scheme),
 ):

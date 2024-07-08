@@ -110,19 +110,20 @@ def test_update_user(client, user, token):
     }
 
 
-# def test_update_user_not_found(client):
-#     response = client.put(
-#         '/users/0',
-#         json={
-#             'username': 'test2',
-#             'email': 'test2@email.com',
-#             'password': 'password2',
-#         },
-#     )
+def test_update_user_not_found(client, token):
+    response = client.put(
+        '/users/0',
+        headers={'Authorization': f'Bearer {token}'},
+        json={
+            'username': 'test2',
+            'email': 'test2@email.com',
+            'password': 'password2',
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.BAD_REQUEST
 
-#     assert response.json() == {'detail': 'User not found'}
+    assert response.json() == {'detail': 'Not enough permission'}
 
 
 def test_delete_user(client, user, token):
@@ -130,16 +131,21 @@ def test_delete_user(client, user, token):
         f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
     )
+
     assert response.status_code == HTTPStatus.OK
+
     assert response.json() == {'message': 'User deleted'}
 
 
-# def test_delete_user_not_found(client):
-#     response = client.delete('/users/0')
+def test_delete_user_not_enough_permission(client, token):
+    response = client.delete(
+        '/users/0',
+        headers={'Authorization': f'Bearer {token}'},
+    )
 
-#     assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.status_code == HTTPStatus.BAD_REQUEST
 
-#     assert response.json() == {'detail': 'User not found'}
+    assert response.json() == {'detail': 'Not enough permission'}
 
 
 def test_get_token(client, user):
@@ -156,3 +162,23 @@ def test_get_token(client, user):
     assert token['token_type'] == 'Bearer'
     # Verifica se o token de acesso foi criado
     assert 'access_token' in token
+
+
+def test_get_token_with_wrong_email(client, user):
+    response = client.post(
+        '/token',
+        data={'username': 'wrong_email', 'password': user.clean_password},
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Incorrect email or password'}
+
+
+def test_get_token_with_wrong_password(client, user):
+    response = client.post(
+        '/token',
+        data={'username': user.email, 'password': 'wrong_password'},
+    )
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
+    assert response.json() == {'detail': 'Incorrect email or password'}
