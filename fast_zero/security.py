@@ -1,3 +1,9 @@
+"""
+Autenticação -> verificar QUEM um usuário é
+
+Autorização -> verificar o que ele tem PERMISSÃO para fazer
+"""
+
 from datetime import datetime, timedelta
 from http import HTTPStatus
 
@@ -41,10 +47,12 @@ def create_access_token(data_payload: dict):
     return encoded_jwt
 
 
+# OAuth2 -> Protocolo de AUTORIZAÇÃO
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
 
 
-def get_current_user(
+# async -> permite operações de IO no DB sem bloqueios
+async def get_current_user(
     session: Session = Depends(get_session),
     token: str = Depends(oauth2_scheme),
 ):

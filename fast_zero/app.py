@@ -38,15 +38,17 @@ def create_user(user: UserSchema, session: Session = Depends(get_session)):
                 detail='Email already exists',
             )
 
+    hashed_password = get_password_hash(user.password)
+
     new_user = User(
         username=user.username,
-        password=get_password_hash(user.password),
+        password=hashed_password,
         email=user.email,
     )
 
     session.add(new_user)
     session.commit()
-    session.refresh(new_user)
+    session.refresh(new_user)  # Adiciona o id que DB deu
 
     return new_user
 

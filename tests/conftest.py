@@ -11,20 +11,6 @@ from fast_zero.security import get_password_hash
 
 
 @pytest.fixture()
-def client(session):
-    def get_session_override():
-        return session  # Usa o DB 'sqlite:///:memory:'
-
-    with TestClient(app) as client:
-        # Sobrescrever uma nova sessão para testes
-        app.dependency_overrides[get_session] = get_session_override
-
-        yield client
-
-    app.dependency_overrides.clear()
-
-
-@pytest.fixture()
 def session():
     # Conexão com o banco de dados (sqlite3)
     # :memory: -> cria DB em Memória
@@ -47,6 +33,20 @@ def session():
         yield session  # Geradores/Corrotinas
 
     table_registry.metadata.drop_all(engine)  # Destruir o DB
+
+
+@pytest.fixture()
+def client(session):
+    def get_session_override():
+        return session  # Usa o DB 'sqlite:///:memory:'
+
+    with TestClient(app) as client:
+        # Sobrescrever uma nova sessão para testes
+        app.dependency_overrides[get_session] = get_session_override
+
+        yield client
+
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture()

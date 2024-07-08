@@ -150,6 +150,9 @@ def test_get_token(client, user):
 
     token = response.json()
 
+    # Verifica o HTTP Status Code
     assert response.status_code == HTTPStatus.OK
+    # Verifica o tipo do Token (Bearer)
     assert token['token_type'] == 'Bearer'
+    # Verifica se o token de acesso foi criado
     assert 'access_token' in token
