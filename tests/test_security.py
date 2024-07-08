@@ -5,10 +5,9 @@ from fastapi import HTTPException
 from jwt import decode
 
 from fast_zero.security import (
-    ALGORITHM,
-    SECRET_KEY,
     create_access_token,
     get_current_user,
+    settings,
 )
 
 
@@ -17,7 +16,9 @@ def test_jwt():
 
     token = create_access_token(data_payload)
 
-    result = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    result = decode(
+        token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+    )
 
     assert result['sub'] == data_payload['sub']
     assert result['exp']  # Testa se o valor de exp foi adicionado ao token

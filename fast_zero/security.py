@@ -17,12 +17,11 @@ from zoneinfo import ZoneInfo
 
 from fast_zero.database import get_session
 from fast_zero.models import User
-
-SECRET_KEY = 'your-secret-key'  # Isso é provisório, vamos ajustar!
-ALGORITHM = 'HS256'
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+from fast_zero.settings import Settings
 
 pwd_context = PasswordHash.recommended()
+
+settings = Settings()
 
 
 def get_password_hash(password: str):
@@ -37,18 +36,20 @@ def create_access_token(data_payload: dict):
     to_encode = data_payload.copy()
 
     expire = datetime.now(tz=ZoneInfo('UTC')) + timedelta(
-        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
 
     to_encode.update({'exp': expire})
 
-    encoded_jwt = encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    encoded_jwt = encode(
+        to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM
+    )
 
     return encoded_jwt
 
 
 # OAuth2 -> Protocolo de AUTORIZAÇÃO
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
 def get_current_user(
@@ -62,7 +63,9 @@ def get_current_user(
     )
 
     try:
-        payload = decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
 
         email: str = payload.get('sub')
 
