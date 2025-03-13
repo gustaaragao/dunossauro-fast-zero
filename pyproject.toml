@@ -36,9 +36,9 @@ addopts = '-p no:warnings'
 lint = 'ruff check'
 pre_format = 'ruff check --fix'
 format = 'ruff format'
-run = 'fastapi dev fastapi_zero/app.py'
+run = 'fastapi dev zero/app.py'
 pre_test = 'task lint'
-test = 'pytest -s -x --cov=fastapi_zero -vv'
+test = 'pytest -s -x --cov=zero -vv'
 post_test = 'coverage html'
 
 [build-system]
