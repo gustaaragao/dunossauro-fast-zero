@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -13,29 +12,11 @@ from zero.schemas import Message, UserList, UserPublic, UserSchema
 app = FastAPI()
 
 
-@app.get('/', status_code=HTTPStatus.OK, response_model=Message)
-def read_root():
-    return {'message': 'Hello World!'}
-
-
-@app.get('/html', response_class=HTMLResponse)
-def read_html():
-    return """
-    <html>
-        <head>
-            <title> Título Legal B( </title>
-        </head>
-        <body>
-            <h1> Olá Mundo! </h1>
-        </body>
-    </html>"""
-
-
 @app.post('/users/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
 def create_user(user: UserSchema, session: Session = Depends(get_session)):
     db_user = session.scalar(
         select(User).where(
-            (User.username == user.username) or (User.email == user.email)
+            (User.username == user.username) | (User.email == user.email)
         )
     )
 
@@ -68,6 +49,18 @@ def read_users(
     users = session.scalars(select(User).offset(skip).limit(limit)).all()
 
     return {'users': users}
+
+
+@app.get('/users/{user_id}', response_model=UserPublic)
+def read_user(user_id: int, session: Session = Depends(get_session)):
+    db_user = session.scalar(select(User).where(User.id == user_id))
+
+    if not db_user:
+        raise HTTPException(
+            status_code=HTTPStatus.NOT_FOUND, detail='User not found'
+        )
+
+    return db_user
 
 
 @app.put('/users/{user_id}', response_model=UserPublic)

@@ -3,20 +3,6 @@ from http import HTTPStatus
 from zero.schemas import UserPublic
 
 
-def test_root(client):
-    response = client.get('/')
-
-    assert response.status_code == HTTPStatus.OK
-    assert response.json() == {'message': 'Hello World!'}
-
-
-def test_html(client):
-    response = client.get('/html')
-
-    assert response.status_code == HTTPStatus.OK
-    assert '<h1> Olá Mundo! </h1>' in response.text
-
-
 def test_create_user(client):
     response = client.post(
         '/users/',
@@ -35,32 +21,32 @@ def test_create_user(client):
     }
 
 
-# def test_create_user_with_username_already_exists(client, user):
-#     response = client.post(
-#         '/users/',
-#         json={
-#             'username': 'test',
-#             'email': 'test2@email.com',
-#             'password': 'secret',
-#         },
-#     )
+def test_create_user_with_username_already_exists(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': user.username,
+            'email': 'test2@email.com',
+            'password': 'secret',
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.CONFLICT
-#     assert response.json() == {'detail': 'Username already exists'}
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json() == {'detail': 'Username already exists'}
 
 
-# def test_create_user_with_email_already_exists(client, user):
-#     response = client.post(
-#         '/users/',
-#         json={
-#             'username': 'test2',
-#             'email': 'test@email.com',
-#             'password': 'secret',
-#         },
-#     )
+def test_create_user_with_email_already_exists(client, user):
+    response = client.post(
+        '/users/',
+        json={
+            'username': 'test2',
+            'email': user.email,
+            'password': 'secret',
+        },
+    )
 
-#     assert response.status_code == HTTPStatus.CONFLICT
-#     assert response.json() == {'detail': 'Email already exists'}
+    assert response.status_code == HTTPStatus.CONFLICT
+    assert response.json() == {'detail': 'Email already exists'}
 
 
 def test_read_users(client):
@@ -77,6 +63,24 @@ def test_read_users_with_users(client, user):
 
     # assert response.status_code == HTTPStatus.OK
     assert response.json() == {'users': [user_schema]}
+
+
+def test_read_user(client, user):
+    response = client.get(f'/users/{user.id}')
+
+    user_schema = UserPublic.model_validate(user).model_dump()
+
+    print(response)
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == user_schema
+
+
+def test_read_user_not_found(client):
+    response = client.get('/users/-1')
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    assert response.json() == {'detail': 'User not found'}
 
 
 def test_update_user(client, user):
