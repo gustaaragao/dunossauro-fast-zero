@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, EmailStr
 
+from zero.models import TodoState
+
 
 class Message(BaseModel):
     message: str
@@ -22,6 +24,20 @@ class UserList(BaseModel):
     users: list[UserPublic]
 
 
+class TodoSchema(BaseModel):
+    title: str
+    description: str
+    state: TodoState
+
+
+class TodoPublic(TodoSchema):
+    id: int
+
+
+class TodoList(BaseModel):
+    todos: list[TodoPublic]
+
+
 class Token(BaseModel):
     access_token: str  # Token JWT
     token_type: str  # cabeçalho de cada solicitação
@@ -30,3 +46,9 @@ class Token(BaseModel):
 class FilterPage(BaseModel):
     offset: int = 0
     limit: int = 100
+
+
+class FilterTodo(FilterPage):
+    title: str | None = None
+    description: str | None = None
+    state: TodoState | None = None
