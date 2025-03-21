@@ -100,23 +100,14 @@ def test_update_user(client, user, token):
     }
 
 
-def test_update_user_integrity_error(client, user, token):
-    client.post(
-        '/users/',
-        json={
-            'username': 'test2',
-            'email': 'test2@email.com',
-            'password': 'secret',
-        },
-    )
-
+def test_update_user_integrity_error(client, user, other_user, token):
     response = client.put(
         f'/users/{user.id}',
         headers={'Authorization': f'Bearer {token}'},
         json={
-            'username': 'test2',
-            'email': 'test@email.com',
-            'password': 'secret',
+            'username': other_user.username,
+            'email': other_user.email,
+            'password': other_user.clean_password,
         },
     )
 
@@ -124,9 +115,11 @@ def test_update_user_integrity_error(client, user, token):
     assert response.json() == {'detail': 'Username or Email already exists'}
 
 
-def test_update_user_forbidden_error(client, user, token):
+def test_update_user_forbidden_error(client, other_user, token):
     response = client.put(
-        f'/users/{user.id + 1}',
+        f'/users/{other_user.id}',
+        # o token é do fixture 'user'
+        # o DB tem dois usuários: 'user' e 'other_user'
         headers={'Authorization': f'Bearer {token}'},
         json={
             'username': 'new_test',
@@ -148,9 +141,9 @@ def test_delete_user(client, user, token):
     assert response.json() == {'message': 'User deleted'}
 
 
-def test_delete_user_forbidden_error(client, user, token):
+def test_delete_user_forbidden_error(client, other_user, token):
     response = client.delete(
-        f'/users/{user.id + 1}', headers={'Authorization': f'Bearer {token}'}
+        f'/users/{other_user.id}', headers={'Authorization': f'Bearer {token}'}
     )
 
     assert response.status_code == HTTPStatus.FORBIDDEN
