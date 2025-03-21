@@ -25,3 +25,8 @@ class UserList(BaseModel):
 class Token(BaseModel):
     access_token: str  # Token JWT
     token_type: str  # cabeçalho de cada solicitação
+
+
+class FilterPage(BaseModel):
+    offset: int = 0
+    limit: int = 100
