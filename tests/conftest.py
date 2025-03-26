@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from zero.app import app
 from zero.database import get_session
-from zero.models import Todo, TodoState, User, table_registry
+from zero.models import User, table_registry
 from zero.security import get_password_hash
 
 
@@ -118,13 +118,3 @@ class UserFactory(factory.Factory):
     username = factory.Sequence(lambda n: f'test{n}')
     email = factory.LazyAttribute(lambda obj: f'{obj.username}@test.com')
     password = factory.LazyAttribute(lambda obj: f'{obj.username}@example.com')
-
-
-class TodoFactory(factory.Factory):
-    class Meta:
-        model = Todo
-    
-    title = factory.Faker('text')
-    description = factory.Faker('text')
-    state = factory.fuzzy.FuzzyChoice(TodoState)
-    user_id = 1

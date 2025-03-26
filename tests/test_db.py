@@ -30,26 +30,29 @@ def test_create_user(session, mock_db_time):
         }
 
 
-def test_create_todo(session, user):
-    new_todo = Todo(
-        title='Test Todo',
-        description='Test Description',
-        state='draft',
-        user_id=user.id,
-    )
+def test_create_todo(session, user, mock_db_time):
+    with mock_db_time(model=Todo) as time:
+        new_todo = Todo(
+            title='Test Todo',
+            description='Test Description',
+            state='draft',
+            user_id=user.id,
+        )
 
-    session.add(new_todo)
-    session.commit()
+        session.add(new_todo)
+        session.commit()
 
-    todo = session.scalar(select(Todo))
+        todo = session.scalar(select(Todo))
 
-    assert asdict(todo) == {
-        'id': 1,
-        'title': 'Test Todo',
-        'description': 'Test Description',
-        'state': 'draft',
-        'user_id': user.id,
-    }
+        assert asdict(todo) == {
+            'id': 1,
+            'title': 'Test Todo',
+            'description': 'Test Description',
+            'state': 'draft',
+            'user_id': user.id,
+            'updated_at': time,
+            'created_at': time,
+        }
 
 
 def test_user_todo_relationship(session, user: User):
