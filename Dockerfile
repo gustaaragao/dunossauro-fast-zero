@@ -21,6 +21,3 @@ RUN poetry install --no-interaction --no-ansi
 
 # Expõe a porta 8000 para acesso externo
 EXPOSE 8000
-
-# Define o comando que será executado com a inicialização do Docker (uvicorn)
-CMD poetry run uvicorn --host 0.0.0.0 zero.app:app

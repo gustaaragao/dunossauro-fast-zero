@@ -1,0 +1,23 @@
+services:
+  zero_database:
+    image: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+
+  zero_app:
+    image: zero
+    entrypoint: ./entrypoint.sh
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - zero_database
+
+volumes:
+  pgdata:

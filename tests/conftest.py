@@ -5,13 +5,14 @@ import factory
 import factory.fuzzy
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import StaticPool, create_engine, event
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 
 from zero.app import app
 from zero.database import get_session
 from zero.models import User, table_registry
 from zero.security import get_password_hash
+from zero.settings import Settings
 
 
 @pytest.fixture
@@ -31,11 +32,7 @@ def client(session):
 @pytest.fixture
 def session():
     # Cria uma Engine em Memória para o banco
-    engine = create_engine(
-        'sqlite:///:memory:',
-        connect_args={'check_same_thread': False},
-        poolclass=StaticPool,
-    )
+    engine = create_engine(Settings().DATABASE_URL)
 
     # Cria todas tabelas registradas no registry
     table_registry.metadata.create_all(engine)
