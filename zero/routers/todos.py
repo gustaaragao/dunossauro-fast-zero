@@ -58,7 +58,6 @@ def read_todos(
         # Nao podemos usar o contains, pois o state é um Enum
         query = query.filter(Todo.state == filters.state)
 
-
     todos = session.scalars(query.offset(filters.offset).limit(filters.limit))
 
     return {'todos': todos.all()}

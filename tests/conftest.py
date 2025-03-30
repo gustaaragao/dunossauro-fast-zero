@@ -7,12 +7,12 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
+from testcontainers.postgres import PostgresContainer
 
 from zero.app import app
 from zero.database import get_session
 from zero.models import User, table_registry
 from zero.security import get_password_hash
-from zero.settings import Settings
 
 
 @pytest.fixture
@@ -29,11 +29,17 @@ def client(session):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def session():
-    # Cria uma Engine em Memória para o banco
-    engine = create_engine(Settings().DATABASE_URL)
+@pytest.fixture(scope='session')
+def engine():
+    with PostgresContainer('postgres:16', driver='psycopg') as postgres:
+        # Cria uma Engine em Memória para o banco
+        _engine = create_engine(postgres.get_connection_url())
 
+        yield _engine
+
+
+@pytest.fixture
+def session(engine):
     # Cria todas tabelas registradas no registry
     table_registry.metadata.create_all(engine)
 
