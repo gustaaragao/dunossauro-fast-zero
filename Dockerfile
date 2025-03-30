@@ -21,3 +21,4 @@ RUN poetry install --no-interaction --no-ansi
 
 # Expõe a porta 8000 para acesso externo
 EXPOSE 8000
+CMD poetry run fastapi run fast_zero/app.py --host 0.0.0.0
